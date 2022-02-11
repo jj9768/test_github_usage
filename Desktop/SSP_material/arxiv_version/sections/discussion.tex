@@ -1,0 +1,33 @@
+% !TEX root = ../characterize_ope.tex
+
+
+\noindent\textbf{Unifying different offline settings.}
+This work solves the sample optimality problems for local uniform OPE, offline task-agnostic and offline reward-free problems. If we take a deeper look, the algorithmic frameworks utilized are all based on model-based empirical MDP construction and planning. Therefore, as long as we can analyze such framework sharply (\emph{e.g.} via absorbing-MDP type trick), then it is hopeful that our techniques can be generalized to more sophisticated settings. On the other hand, things could be more tricky for online RL since exploration phases need to be specifically designed for each settings and there may not be one general algorithmic pattern that dominates. Our findings reveal model-based framework is fundamental for offline RL as it subsumes settings like local uniform OPE, offline task-agnostic and offline reward-free into the identical learning pattern. Therefore, understanding model-based approaches is crucial for offline RL. 
+
+\noindent\textbf{On the higher order error term.}
+Our main result (Theorem~\ref{thm:optimal_upper_bound}) has an additional $\sqrt{HS}$ dependence in the higher order error term and we cannot further remove it based on our current technique. Moreover, suboptimal dependence in parameter $H,S$ in the higher order terms is a long-lasting issue in almost all state-of-the-art online RL algorithms (\emph{e.g.} \citet{azar2017minimax,jin2018q,dann2019policy,zhang2020reinforcement}). How to obtain optimality not only for the main term but also for the higher order error terms remains elusive for the community.
+
+
+
+\noindent\textbf{Uniform OPE and beyond.}
+The current study of uniform OPE derives results with expression using parameter dependence which lacks the characterization of each individual policy. Deriving instance-dependent uniform convergence result will draw a clearer picture on the individual behaviors for each policy. Besides, this work concentrates on Tabular MDPs and generalizing uniform convergence to more practical settings like linear MDPs, game environments and multi-agent settings are promising future directions.  Specifically, general complexity measure (mirroring VC-dimensions and Rademacher complexities for statistical learning problems) that precisely captures local and global uniform convergence beyond the tabular cases would be of great interest.  
+
+%It remains unclear whether the lower bound can be achieved for the global policy class in uniform OPE. We conjecture that this is true but it will require some new techniques. %Moreover, offline tabular setting is only a starting point and extending the setting to linear MDPs, kernel spaces and function approximation to combine model-based methods would be more practical and helpful for offline learning in general.  
+
+
+
+
+%\yw{We have already discussed the relationship with simulation lemma and Duan et al earlier.}
+%\textbf{The pointwise OPE analysis as refined simulation lemma.}
+%One intrinsic challenge for sequential decision making problem is decisions made over long horizon may become imprecise due to the error propagation. Therefore, accurate planning over long horizon is core for the success of RL and getting optimal dependence on $H$ is highly non-trivial, \emph{e.g.} see COLT open problem \citep{jiang2018open}. How much improvement/novelty does our analysis made in this task? For example, the standard analysis tool for model-based estimates is \emph{simulation lemma} \citep{jiang2018notes,kearns2002near}, it follows (assuming deterministic reward):\footnote{For detailed verification of the computation, see Appendix~\ref{sec:app_sl}.}
+%{\small
+%\begin{align*}
+%\norm{\widehat{v}^\pi-v^\pi}_\infty&\leq H^2 \sup_{t,s_t,a_t}\norm{\widehat{P}(\cdot|s_t,a_t)-P(\cdot|s_t,a_t)}_1\\
+%&\leq O\left(\sqrt{\frac{H^4S^2\log(HSA/\delta)}{nd_m}}\right),
+%\end{align*}
+%}which has provable complexity of $\widetilde{O}(H^4S^2/d_m\epsilon^2)$. Meanwhile, our Lemma~\ref{thm:single_finer_bound} only has order $\widetilde{O}(H^2/d_m\epsilon^2)$, which has $H^2S^2$ improvement over the vanilla \emph{simulation lemma}. Moreover, this result essentially matches the Corollary~1 of \cite{duan2020minimax} and is minimax optimal under our Assumption~\ref{assume2} (our $d_m=\min_{s,a} \bar{\mu}_h(s,a)$ in their case). Our analysis reveals direct model-based plug-in estimator is tight, which helps to correct the commonly held misunderstanding that purely model plug-in estimator can only provide loose bound due to \emph{simulation lemma}. 
+
+
+%\textbf{Comparison to $\widetilde{O}(H^3S^2A/\epsilon^2)$ uniform convergence bound in \citet{yin2020asymptotically} (Section~3.2).} Their results require number of episodes in each splitted data $M$ to satisfy $\widetilde{O}(\sqrt{nSA})>M>O(HSA)$. To achieve data efficiency, they need $n\approx \Theta(H^2SA/\epsilon^2)$ and by that condition $M$ has to satisfy $M\approx C\cdot HSA$. In this case, data-splitting version needs to create $N=n/M$ empirical transition dynamics and each dynamics use $H^3/N\approx C\cdot H^2SA/\epsilon^2$ episodes which is less than the lower bound ($O(H^3)$) required for learning. Also, it has $N$ empirical transitions so it is not clear which transition to plan over. Analysis for OPEMA completely avoids these issues (See those algorithms in Section~\ref{sec:alg}). 
+
+

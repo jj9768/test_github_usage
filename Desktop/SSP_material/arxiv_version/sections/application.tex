@@ -1,0 +1,78 @@
+% !TEX root = ../characterize_ope.tex
+
+\section{Applications: offline Task-agnostic and offline Reward-free learning}\label{sec:application}
+
+From Corollary~\ref{cor:opt_offline}, our model-based offline learning algorithm has two steps: 1. constructing offline empirical MDP $\widehat{M}$ using the offline dataset {$\mathcal{D}=\{(s_{t}^{(i)}, a_{t}^{(i)}, r(s_{t}^{(i)}, a_{t}^{(i)}), s_{t+1}^{(i)})\}_{i \in[n]}^{t \in[H]}$}; 2. performing any accurate black-box \emph{planning} algorithm and returning $\widehat{\pi}^\star$(or $\widehat{\pi}$) as the final output. However, the only \emph{effective} data (data that contains stochasticity) is $\mathcal{D}'=\{(s_{t}^{(i)}, a_{t}^{(i)})\}_{i \in[n]}^{t \in[H]}$. This indicates we are essentially using the state-action space exploration data $\mathcal{D}'$ to solve the task-specific problem with reward $r$. With this perspective in mind, it is natural to ask: given only the offline exploration data $\mathcal{D}'$, can we efficiently learn a set of potentially conflicting $K$ tasks ($K$ rewards) simultaneously? Even more, can we efficiently learn all tasks (any reward) simultaneously? This brings up the following definitions.
+\vspace{1em}
+\begin{definition}[Offline Task-agnostic Learning]\label{def:offline_ta}
+	Given a offline exploration datatset $\mathcal{D}'=\{(s_{t}^{(i)}, a_{t}^{(i)})\}_{i \in[n]}^{t \in[H]}$ by $\mu$ with $n$ episodes. Given $K$ tasks with reward $\{r_k\}_{k=1}^K$ and the corresponding $K$ MDPs $M_k=(\mathcal{S}, \mathcal{A}, P, r_k, H, d_1)$. Can we use $\mathcal{D}'$ to output $\hat{\pi}_1,\ldots,\hat{\pi}_K$ such that 
+	\[
+	\P\left[\forall r_k,k\in[K], \norm{V^\star_{1,M_k}-V^{\hat{\pi}_k}_{1,M_k}}_\infty\leq\epsilon\right]\geq 1-\delta?
+	\]
+\end{definition}
+\begin{definition}[Offline Reward-free Learning]\label{def:offline_rf}
+	Given a offline exploration datatset $\mathcal{D}'=\{(s_{t}^{(i)}, a_{t}^{(i)})\}_{i \in[n]}^{t \in[H]}$ by $\mu$ with $n$ episodes. For any reward $r$ and the corresponding MDP $M=(\mathcal{S}, \mathcal{A}, P, r, H, d_1)$. Can we use $\mathcal{D}'$ to output $\hat{\pi}$ such that 
+	\[
+	\P\left[\forall r, \norm{V^\star_{1,M}-V^{\hat{\pi}}_{1,M}}_\infty\leq\epsilon\right]\geq 1-\delta?
+	\]
+\end{definition}
+Definition~\ref{def:offline_ta} and Definition~\ref{def:offline_rf} are the offline counterparts of \citet{zhang2020task} and \citet{jin2020reward} in online RL. Those settings are of practical interests in the offline regime as well since in practice reward functions are often iteratively engineered to encourage desired behavior via trial and error and using one shot of offline exploration data $\mathcal{D}'$ to tackle problems with different reward functions could help improve sample efficiency. 
+
+Our singleton absorbing MDP technique adapts to those settings and we have the following two theorems. The proofs of Theorem~\ref{thm:offline_ta}, \ref{thm:offline_rf} can be found in Appendix~\ref{sec:proof_ta}, \ref{sec:proof_rf}.
+\vspace{1em}
+ \begin{theorem}[optimal offline task-agnostic learning]\label{thm:offline_ta}
+ 	Given $\mathcal{D}'=\{(s_{t}^{(i)}, a_{t}^{(i)})\}_{i \in[n]}^{t \in[H]}$ by $\mu$. Given $K$ tasks with reward $\{r_k\}_{k=1}^K$ and the corresponding $K$ MDPs $M_k=(\mathcal{S}, \mathcal{A}, P, r_k, H, d_1)$. Denote $\iota=\log(HSA/\delta)$. Let $\widehat{\pi}_k^{\star}:=\operatorname{argmax}_{\pi} \widehat{V}_{1,M_k}^{\pi}$ $\forall k\in[K]$, when $n>O(H\cdot[\iota+\log(K)]/d_m)$, then with probability $1-\delta$,
+ 	\[
+ 	\norm{V_{1,M_k}^\star-V_{1,M_k}^{\widehat{\pi}_k^{\star}}}_\infty\leq 
+ 	O\left[\sqrt{\frac{H^2 (\iota+\log(K))}{n d_m}}+\frac{H^{2.5}S^{0.5}(\iota+\log(K))}{nd_m}\right].
+ 	\;\;\forall k\in[K]
+ 	\]
+ \end{theorem}
+
+\begin{theorem}[optimal offline reward-free learning]\label{thm:offline_rf}
+	Given $\mathcal{D}'=\{(s_{t}^{(i)}, a_{t}^{(i)})\}_{i \in[n]}^{t \in[H]}$ by $\mu$. For any reward $r$ denote the corresponding MDP $M=(\mathcal{S}, \mathcal{A}, P, r, H, d_1)$. Denote $\iota=\log(HSA/\delta)$. Let $\widehat{\pi}^{\star}_M:=\operatorname{argmax}_{\pi} \widehat{V}_{1,M}^{\pi}$ $\forall r$, when $n>O(HS\cdot\iota/d_m)$, then with probability $1-\delta$, 
+	\[
+	\norm{V_{1,M}^\star-V_{1,M}^{\widehat{\pi}^{\star}_M}}_\infty\leq O\left[\sqrt{\frac{H^2S \cdot\iota}{n d_m}}+\frac{H^{2}S\cdot\iota}{nd_m}\right].
+	\;\;\forall r,M.
+	\]
+\end{theorem}
+
+By a direct translation of both theorems, we have sample complexity of order $\widetilde{O}(H^2\log(K)/d_m\epsilon^2)$ and $\widetilde{O}(H^2S/d_m\epsilon^2)$. All the parameters have the optimal rates, see lower bound in \citet{zhang2020task} and \citet{jin2020reward}. In particular, the higher order dependence in Theorem~\ref{thm:offline_rf} is also tight. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+%\newpage

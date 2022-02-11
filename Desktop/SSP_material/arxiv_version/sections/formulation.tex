@@ -1,0 +1,48 @@
+% !TEX root = ../intrinsic_offline_RL_bound_arxiv.tex
+
+\textbf{Episodic non-stationary (time-varying) reinforcement learning.} A finite-horizon \emph{Markov Decision Process} (MDP) is denoted by a tuple $M=(\mathcal{S}, \mathcal{A}, P, r, H, d_1)$ \citep{sutton2018reinforcement}, where $\mathcal{S}$ is the finite state space and $\mathcal{A}$ is the finite action space with $S:=|\mathcal{S}|<\infty,A:=|\mathcal{A}|<\infty$. A non-stationary transition kernel $P_h:\mathcal{S}\times\mathcal{A}\times\mathcal{S} \mapsto [0, 1]$ maps each state action$(s_h,a_h)$ to a probability distribution $P_h(\cdot|s_h,a_h)$ and $P_h$ can be different across the time. Besides, $r : \mathcal{S} \times{A} \mapsto \mathbb{R}$ is the expected instantaneous reward function satisfying $0\leq r\leq1$. $d_1$ is the initial state distribution. $H$ is the horizon. A policy $\pi=(\pi_1,\ldots,\pi_H)$ assigns each state $s_h \in \mathcal{S}$ a probability distribution over actions according to the map $s_h\mapsto \pi_h(\cdot|s_h)$ $\forall h\in[H]$.  An MDP together with a policy $\pi$ induce a random trajectory $ s_1, a_1, r_1, \ldots, s_H,a_H,r_H,s_{H+1}$ with $s_1 \sim d_1, a_h \sim \pi(\cdot|s_h), s_{h+1} \sim P_h (\cdot|s_h, a_), \forall h \in [H]$ and $r_h$ is a random realization given the observed $s_h,a_h$.
+
+\textbf{$Q$-values, Bellman (optimality) equations.} The value function $V^\pi_h(\cdot)\in \R^S$ and Q-value function $Q^\pi_h(\cdot,\cdot)\in \R^{S\times A}$ for any policy $\pi$ is defined as:
+$
+V^\pi_h(s)=\E_\pi[\sum_{t=h}^H r_{t}|s_h=s] ,\;\;Q^\pi_h(s,a)=\E_\pi[\sum_{t=h}^H  r_{t}|s_h,a_h=s,a],\;\forall s,a\in\mathcal{S},\mathcal{A},h\in[H].
+$ The performance is defined as $v^\pi:=\E_{d_1}\left[V^\pi_1\right]=\E_{\pi,d_1}\left[\sum_{t=1}^H  r_t\right]$, where we denote $V_h^\pi,Q_h^\pi$ as column vectors and $P_h\in\R^{SA\times S}$ the transition matrix, then the vector form Bellman (optimality) equations follow $\forall h\in[H]$:
+$
+Q^\pi_h=r_h+P_hV^\pi_{h+1},\;\;V^\pi_h=\E_{a\sim\pi_h}[Q^\pi_h], \;\;\;Q^\star_h=r_h+P_hV^\star_{h+1},\; V^\star_h=\max_a Q^\star_h(\cdot,a).
+$In addition, we denote the per-step marginal state-action occupancy $d^\pi_h(s,a)$ as:
+{$
+d^\pi_h(s,a):=\P[s_h=s|s_1\sim d_1,\pi]\cdot\pi_h(a|s),
+$
+}which is the marginal state-action probability at time $h$. 
+
+%\my{Add $P^\pi\in\R^{S\times A}$ later.}
+
+
+\textbf{Offline setting and the goal.} The offline RL requires the agent to find a policy $\pi$ such that the performance $v^\pi$ is maximized, given only the episodic data {\small$\mathcal{D}=\left\{\left(s_{h}^{\tau}, a_{h}^{\tau}, r_{h}^{\tau}, s_{h+1}^{\tau}\right)\right\}_{\tau\in[n]}^{h\in[H]}$} rolled out from some behavior policy $\mu$. The offline nature requires we cannot change $\mu$ and in particular we do not assume the functional knowledge of $\mu$. That is to say, given the batch data $\mathcal{D}$ and a targeted accuracy $\epsilon>0$, the offline RL seeks to find a policy $\pi_\text{alg}$ such that $v^\star-v^{\pi_\text{alg}}\leq\epsilon$.
+
+\subsection{Assumptions in offline RL}
+
+We revise several types of assumptions proposed by existing studies that can yield provably efficient results. Recall $d^\mu_h(s_h,a_h)$ is the marginal state-action probability and $\mu$ is the behavior policy.
+
+\begin{assumption}[Uniform data coverage \citep{yin2021near}]\label{assum:uniform}
+	The behavior policy obeys that $d_m:=\min_{h,s_h,a_h} d_h^\mu (s_h,a_h) > 0$. Here the infimum is over all the states satisfying there exists certain policy so that this state can be reached by the current MDP with this policy. 
+\end{assumption}
+This is the strongest assumption in offline RL as it requires $\mu$ to explore each state-action pairs with positive probability. Under \ref{assum:uniform}, it mostly holds $1/d_m\geq SA$. This reveals offline learning is generically harder than \emph{the generative model setting} \citep{agarwal2020model} in the statistical sense. On the other hand, this is required for the \emph{uniform OPE} task in \cite{yin2021near} as it seeks to simultaneously evaluate all the policies within the policy class and it is in general a harder task than offline learning itself.  
+
+
+\begin{assumption}[Uniform concentrability \cite{szepesvari2005finite,chen2019information}]\label{assum:concen}
+	For all the policies, $C_\mu:=\sup_{\pi,h} ||d^\pi_h(\cdot,\cdot)/d^\mu_h(\cdot,\cdot)||_\infty<\infty$.
+\end{assumption}
+
+This is a classical offline RL condition that is commonly assumed in the function approximation scheme (\emph{e.g.} Fitted Q-Iteration). Qualitatively, this is a uniform data-coverage assumption that is similar to Assumption~\ref{assum:uniform}, but quantitatively, the coefficient $C_\mu$ can be smaller than $1/d_m$ due the $d^\pi_h$ term in the numerator. 
+
+\begin{assumption}[\cite{liu2019off}]\label{assum:single_concen}
+	There exists one optimal policy $\pi^\star$, s.t. $\forall s_h,a_h\in\mathcal{S},\mathcal{A}$, $d^\mu_h(s_h,a_h)>0$ if $d^{\pi^\star}_h(s_h,a_h)>0$. We further denote the trackable set as $\mathcal{C}_h:=\{(s_h,a_h):d^\mu_h(s_h,a_h)>0\}$. 
+\end{assumption}
+ Assumption~\ref{assum:single_concen} is (arguably) the weakest assumption needed for accurately learning the optimal value $v^\star$ and we will use \ref{assum:single_concen} for most parts of this paper. It only requires $\mu$ to trace the state-action space of one optimal policy and can be agnostic at other locations. \cite{rashidinejad2021bridging,xie2021policy} considers this assumption and provide analysis is based on the single concentrability coefficient  $C^\star:=\max_{s,a}{d^{\pi^\star}(s,a)}/{d^\mu(s,a)}$. The dependence on $C^\star$ makes their result less adaptive since there can be lots of locations that have the ratio ${d^{\pi^\star}(s,a)}/{d^\mu(s,a)}$ much smaller than $C^\star$. Furthermore, what could we end up with when \ref{assum:single_concen} is not met? We will provide our answers in the subsequent sections. 
+
+
+
+
+
+
+

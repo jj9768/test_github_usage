@@ -1,0 +1,16 @@
+% !TEX root = ../intrinsic_offline_RL_bound_arxiv.tex
+We only briefly sketch the key proving ideas in Section~\ref{sec:intrinsic}. We provide an extended proof overview in Appendix~\ref{sec:e_p_o}.  
+Our analysis of the intrinsic learning bound in Section~\ref{sec:intrinsic} leverage the key design feature of APVI that $\widehat{V}_{h+1}$ only depends on the transition data from time $h+1$ to $H$ while $\widehat{P}_h$ only uses transition pairs at time $h$. This enables concentration inequalities due the \emph{conditional} independence. To cater for the data-adaptive bonus \eqref{eqn:pessimistic_pen}, we use \emph{Empirical} Bernstein inequality to get {\small$(\widehat{P}_h-P_h)\widehat{V}_{h+1}\lesssim \sqrt{{\mathrm{Var}_{\hat{P}}(\widehat{V}_{h+1})}/{n_{s_h,a_h}}}$}. Especially, to recover the {\small$\sqrt{\mathrm{Var}_P(V^\star_{h+1})}$} structure to we use a self-bounding reduction as follows. First, {\small$\sqrt{{\mathrm{Var}_{\hat{P}}(\widehat{V}_{h+1})}}-\sqrt{\mathrm{Var}_P(\widehat{V}_{h+1})}\lesssim H/\sqrt{n\bar{d}_m}$} and {\small$\sqrt{\mathrm{Var}_P(\widehat{V}_{h+1})}-\sqrt{\mathrm{Var}_P({V}^\star_{h+1})}\leq ||\widehat{V}_{h+1}-V^\star_{h+1}||_\infty$}. Next, we use \eqref{eqn:VPVI} as the intermediate step to crude bounding  {\small$||\widehat{V}_{h+1}-V^\star_{h+1}||_\infty\lesssim H^2/\sqrt{n\bar{d}_m}$} (where ``the use of \eqref{eqn:VPVI}'' is the more intricate self-bounding Lemma~\ref{lem:self_bound} in the actual proof) and this yields the desired structure of {\small$\sqrt{\mathrm{Var}_P({V}^\star_{h+1})}+H^2/\sqrt{n\bar{d}_m}$}. Lastly, we can combine this with \emph{the extended value difference lemma} in \cite{cai2020provably} to bound $V_1^\star-\widehat{V}_1$ and leverage the pessimistic design for bounding $\widehat{V}_1-V_1^{\widehat{\pi}}$. 
+
+
+
+For the per-instance lower bound, similar to \cite{khamaru2020temporal}, we reduce the problem from $\mathfrak{R}_{n}(\mathcal{P})$ to the two point testing problem and construct a problem-dependent local instance {\small$P'_h(s_{h+1}|s_h,a_h)=P_h(s_{h+1}|s_h,a_h)+\frac{P_h(s_{h+1}|s_h,a_h)\left(V_{h+1}^\star(s_{h+1})-\E_{P_{s_h,a_h}}[V_{h+1}^\star]\right)}{8\sqrt{\zeta\cdot n_{s_h,a_h}\cdot \Var_{P_{s_h,a_h}}(V_{h+1}^\star)}}$}. The design with the subtraction of ``the baseline'' $\E_{P_{s_h,a_h}}[V_{h+1}^\star]$ is the key to make sure $P'$ center around the instance $P$. 
+
+
+
+
+
+
+
+
+%\red{Talk about how CR lower bound might not be asymptotically achievable in some cases.}

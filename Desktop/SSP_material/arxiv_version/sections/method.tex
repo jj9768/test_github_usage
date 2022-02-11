@@ -1,0 +1,67 @@
+
+% !TEX root = ../Uniform_OPE_icml.tex
+
+\subsection{Tabular Marginalized Importance Sampling Estimator}
+
+\textbf{We stick with the tabular marginalized importance sampling estimator (TMIS). }
+
+In addition to the non-stationary, finite horizon tabular MDP $M=(\mathcal{S},\mathcal{A},r,T,d_1,H)$ (where $S:=|\mathcal{S}|<\infty$ and $A:=|\mathcal{A}|<\infty$), non-stationary logging policy $\mu$ and target policy $\pi$ in Section~\ref{sec:preliminary}, we denote $d^\mu_t(s_t,a_t)$ and $d^\pi_t(s_t,a_t)$ the induced joint state-action distribution at time $t$ and the state distribution counterparts $d^\mu_t(s_t)$ and $d^\pi_t(s_t)$, satisfying $d^{\pi}_t(s_t,a_t)=d^{\pi}_t(s_t)\cdot \pi(a_t|s_t)$.\footnote{For $\mu$, $d^{\mu}_t(s_t,a_t)=d^{\mu}_t(s_t)\cdot \mu(a_t|s_t)$.} The initial distributions are identical $d_1^\mu=d^\pi_1=d_1$. Moreover, we use $P^\pi_{i,j}\in\mathbb{R}^{S\times S}, \;\forall j<i$ to represent the state transition probability from step $j$ to step $i$ under policy $\pi$, where $P^\pi_{t+1,t}(s^\prime|s)=\sum_a P_{t+1,t}(s^\prime|s,a)\pi_t(a|s)$.  The marginal state distribution vector ${d}_t^\pi(\cdot)$ satisfies
+${d}_t^\pi  = {P}^{\pi}_{t,t-1} {d}_{t-1}^\pi,$
+
+Historical data $\mathcal{D}=\left\lbrace (s_t^{(i)},a_t^{(i)},r_t^{(i)})\right\rbrace_{i\in[n]}^{t\in[H]} $ was obtained by logging policy $\mu$ and we can only use $\mathcal{D}$ to estimate the value of target policy $\pi$, \emph{i.e.} $v^\pi$. Suppose we only assume knowledge about $\pi(a|s)$ for all $(s,a)\in\mathcal{S}\times\mathcal{A}$ and \emph{do not observe} $r_t(s_t,a_t)$ for any actions other than the noisy immediate reward $r_t^{(i)}$ after observing $s_t^{(i)},a_t^{(i)}$. 
+
+\begin{assumption}[Bounded rewards]\label{assume1}
+	 $\forall \;t=1,...,H$ and $i=1,...,n$, $0\leq r^{(i)}_t\leq R_{\max}$.
+\end{assumption}
+The bounded reward assumption can be relaxed to:  $\exists R_{\max},\sigma<+\infty$ such that $0\leq \mathbb{E}[r_t|s_t,a_t,s_{t+1}]\leq R_{\max}$, $\mathrm{Var}[r_t|s_t,a_t,s_{t+1}]\leq \sigma^2$ (as in \citet{xie2019towards}), for achieving Cramer-Rao lower bound. However, the boundedness will become essential for applying concentrate inequalities in deriving high probability bounds.
+
+\begin{assumption}\label{assume2}
+	Logging policy $\mu$ obeys $d_m:=\min_{t,s_t}d^\mu_t(s_t)>0$.
+\end{assumption}
+This assumption is always required for the consistency of off-policy evaluation estimator. 
+
+\begin{assumption}[Bounded weights]\label{assume3}
+	$\tau_s:=\max_{t,s_t}\frac{d^\pi_t(s_t)}{d^\mu_t(s_t)}<+\infty$ and $\tau_a:=\max_{t,s_t,a_t}\frac{\pi(a_t|s_t)}{\mu(a_t|s_t)}<+\infty$.
+\end{assumption}
+Assumption~\ref{assume3} is also necessary for discrete state and actions, as otherwise the second moments of the importance weight would be unbounded and the MSE of estimators will become intractable . The bound on $\tau_s$ is natural since $\tau_s\leq \max_{t,s_t}\frac{1}{d^\mu_t(s_t)}=\frac{1}{\min_{t,s_t}d^\mu_t(s_t)}=\frac{1}{d_m}$ and it's finite by the Assumption~\ref{assume2}; similarly, $\tau_a<\infty$ is also automatically satisfied if $\min_{t,s_t,a_t}\mu(a_t|s_t)>0$.  
+
+\subsection{Tabular-MIS estimator}
+
+Marginalized importance sampling directly estimates
+the marginalized state visitation distribution $\widehat{d}_t$ and defines the MIS estimator:
+
+\begin{equation}\label{MIS_def}
+\widehat{v}^\pi_{MIS} =\frac{1}{n}\sum_{i=1}^n\sum_{t=1}^H\frac{\widehat{d}^\pi_t(s_t^{(i)})}{\widehat{d}^\mu_t(s^{(i)}_t)}\widehat{r}^\pi_t(s^{(i)}).
+\end{equation}
+and $\widehat{d}^\mu_t(\cdot)$ is directly estimated using the empirical mean, \emph{i.e.} $\widehat{d}^\mu_t(s_t):=\frac{1}{n}\sum_i \mathbf{1}(s_t^{(i)}=s_t):=\frac{n_{s_t}}{n}$ whenever $n_{s_t}>0$ and $\widehat{d}^\pi_t(s_t)/\widehat{d}^\mu_t(s_t)=0$ when $n_{s_t}=0$. Then the MIS estimator \eqref{MIS_def} becomes:
+\begin{equation}\label{MIS}
+\widehat{v}^\pi_{MIS}=\sum_{t=1}^H\sum_{s_t}\widehat{d}^\pi_t(s_t)\widehat{r}^\pi_t(s_t)
+\end{equation}
+
+\paragraph{Construction of \TMIS .} 
+  
+We can construct empirical estimates for $\widehat{P}_{t+1}(s_{t+1}|s_{t},a_{t})$ and $\widehat{r}_t(s_t,a_t)$ as: 
+{\small
+\begin{equation}\label{eq:tabular_MIS_construction}
+%\hspace{-3.5mm}
+\begin{aligned}
+\widehat{P}_{t+1}(s_{t+1}|s_{t},a_{t})&=\frac{\sum_{i=1}^n\mathbf{1}[(s^{(i)}_{t+1},a^{(i)}_t,s^{(i)}_t)=(s_{t+1},s_{t},a_{t})]}{n_{s_{t},a_{t}}}\\
+\widehat{r}_t(s_t,a_t)&=\frac{\sum_{i=1}^n r_t^{(i)}\mathbf{1}[(s^{(i)}_t,a^{(i)}_t)=(s_t,a_t)]}{n_{s_t,a_t}},\\
+\end{aligned}
+\end{equation}
+}
+where we set $\widehat{P}_{t+1}(s_{t+1}|s_{t},a_{t})=0$ and $\widehat{r}_t(s_t,a_t)=0$ if $n_{s_t,a_t}=0$, with $n_{s_t,a_t}$ the empirical visitation frequency to state-action $(s_t,a_t)$ at time $t$. The corresponding estimation of $\widehat{P}_{t+1}(s_{t+1}|s_{t},a_{t})$ and $\widehat{r}_t(s_t,a_t)$ are defined as:
+
+\begin{equation}\label{eq:tabular_MIS_construction2}
+\begin{aligned}
+\widehat{P}^\pi_t(s_t|&s_{t-1})=\sum_{a_{t-1}}\widehat{P}_t(s_t|s_{t-1},a_{t-1})\pi(a_{t-1}|s_{t-1}),\\
+\widehat{r}^\pi_t(s_t)&=\sum_{a_t}\widehat{r}_t(s_t,a_t)\pi(a_t|s_t),\;\widehat{d}^\pi_t=\widehat{P}^\pi_t\widehat{d}^\pi_{t-1}. 
+\end{aligned}
+\end{equation}
+
+
+
+
+%\red{However, model-based approaches are not well-understood even in tabular setting.  Some discussions and summary of the understanding of tabular methods are here: \url{http://nanjiang.cs.illinois.edu/files/cs598/note3.pdf}
+%In particular, check the "Simulation Lemma", and check out the various ``naive approaches'' to analyze the model-based methods.}
+

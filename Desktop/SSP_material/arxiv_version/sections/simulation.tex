@@ -1,0 +1,30 @@
+% !TEX root = ../Uniform_convergence_OPE.tex
+
+
+
+
+%\yub{Maybe ``Proof overview'' as the subtitle?}
+In this section we use a simple simulated environment to empirically demonstrate the correct scaling in $H$. Direct evaluating $\sup_{\pi\in\Pi} |\widehat{v}^\pi-v^\pi|$ empirically is computationally infeasible since the policy classes we considered here contains either $A^{HS}$ or $\infty$ many policies. 
+%For example, if we pick $K$ policies inside the policy class to numerically verify and $K\ll A^{HS}$, then by Lemma~\ref{thm:single_finer_bound} and a union bound, the sup over all $K$ policies is still of order $\widetilde{O}(H^2\log(K))$ (instead of the correct lower bound $\Omega(H^3)$ in Thm~\ref{thm:uni_lower}). 
+%To address this issue, 
+Instead, in the experiment we will plot the sub-optimality gap $ |v^\star-v^{\widehat{\pi}^\star}|$ with $\hat{\pi}^\star$ being the outputs of policy planning algorithms. The sub-optimality gap is considered as a surrogate for the lower bound of $\sup_{\pi\in\Pi} |\widehat{v}^\pi-v^\pi|$.
+%use the learning result and measure $|v^\star-v^{\widehat{\pi}^\star}|$ as a surrogate for $\sup_{\pi\in\Pi} |\widehat{v}^\pi-v^\pi|$. 
+Concretely, the non-stationary MDP has $2$ states $s_0,s_1$ and $2$ actions $a_1,a_2$ where action $a_1$ has probability $1$ going back the current state and for action $a_2$, there is one state s.t. after choosing $a_2$ the dynamic transitions to both states with equal probability $\frac{1}{2}$ and the other one has asymmetric probability assignment ($\frac{1}{4}$ and $\frac{3}{4}$). The transition after choosing $a_2$ is changing over different time steps therefore the MDP is non-stationary and the change is decided by a sequence of pseudo-random numbers (Figure~\ref{fig:mdp} shows the transition kernel at a particular time step). Moreover, to make the learning problem non-trivial we use non-stationary rewards with $4$ categories, \emph{i.e.} $r_t(s,a)\in\{\frac{1}{4},\frac{2}{4},\frac{3}{4},1\}$ and assignment of $r_t(s,a)$ for each value is changing over time (see Section~\ref{sec:simluation_detail} in appendix for more details). Lastly, the logging policy in Figure~\ref{fig:different_H} is uniform with $\mu_t(a_1|s)=\mu_t(a_2|s)=\frac{1}{2}$ for both states.
+
+
+Figure~\ref{fig:different_H} use a fixed number of episodes $n=2048$ while varying $H$ to examine the horizon dependence for uniform OPE. We can see for fixed pointwise OPE with OPEMA (blue line), $|v^\pi-\widehat{v}^\pi|$ scales as $O(\sqrt{H^2})$ which reflects the bound of Lemma~\ref{thm:single_finer_bound}; for the model-based planning, we ran both VI and PI until they converge to the empirical optimal policy $\widehat{\pi}^\star$. %We run both VI/PI for sufficient iterations so they converge to the exact empirical optimal policy $\widehat{\pi}^\star$. 
+The figure shows that for this MDP example $|v^\star-v^{\widehat{\pi}^\star}|$ scales as $O(\sqrt{H^3/d_m})$ for fixed $n$ since it is parallel to the reference magenta line. This fact empirically shows $O(\sqrt{H^3/d_m})$ bound is required %for both offline learning and UCOPE and 
+confirms the scaling of our theoretical results. 
+%For other related simulation %(\emph{e.g.} relative error $|v^\star-v^{\widehat{\pi}^\star}|/v^\star$ for checking experimental correctness), 
+%see Appendix~\ref{sec:simluation_detail}.
+
+\begin{figure}
+	\centering     %%% not \center
+	\subfigure[A non-stationary MDP]{\label{fig:mdp}\includegraphics[width=0.45\linewidth]{MDP-instance.pdf}}
+	\subfigure[RMSE vs. Horizon $H$]{\label{fig:different_H}\includegraphics[width=0.5\linewidth]{verify_uniform_convergence.pdf}}
+	\caption{Log-log plot  showing the dependence on horizon of uniform OPE and pointwise OPE via learning ($|{v}^{\star}-v^{\widehat{\pi}^\star}|$) over a non-stationary MDP example.}
+	\label{fig:main}
+\end{figure}
+
+
+%\red{Talk about how CR lower bound might not be asymptotically achievable in some cases.}

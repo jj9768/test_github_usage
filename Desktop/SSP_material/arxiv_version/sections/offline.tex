@@ -1,0 +1,101 @@
+% !TEX root = ../Uniform_convergence_OPE.tex 
+%Why do we care about above statistical learning theories? Most critically, Uniform OPE provides theoretical foundation for efficient \emph{offline learning} algorithm.
+
+
+
+
+In this section we discuss the implication of our results on offline learning. As we discussed earlier in the introduction, a uniform OPE bound of $\epsilon$ implies that the corresponding ERM algorithm finds a $2\epsilon$-suboptimal policy.  But it also implies that all other offline policy-learning algorithms that are not ERM, we could gracefully decompose their error into optimization error and statistical  (generalization) error. 
+\begin{theorem}\label{thm:offlinelearning}
+	Let $\hat{\pi}^* = \argmax_{\pi} \hat{v}^{\pi}$ --- the empirically optimal policy. Let $\hat{\pi}$ be any data-dependent choice of policy such that $\hat{v}^{\hat{\pi}^*} - \hat{v}^{\hat{\pi}} \leq \epsilon_\text{opt}$, then. There is a universal constant $c$ such that w.p. $\geq 1-\delta$ 
+	\begin{enumerate}
+		\itemsep1pt
+		\item 	$
+		v^{\pi^*}  - v^{\hat{\pi}} \leq c\sqrt{\frac{H^4S\log(HSA/\delta)}{d_m \cdot n}} + \epsilon_\text{opt}.
+		$
+		\item If  $\delta< e^{-S}$, the bound improves to $c\sqrt{\frac{H^4S\log(HSA/\delta)}{d_m \cdot n}} +  \epsilon_\text{opt}$. And if in addition $\hat{\pi}$ is deterministic, the bound further improves to 
+		$c\sqrt{\frac{H^3\min\{H,S\}\log(HSA/\delta)}{d_m \cdot n}} +  \epsilon_\text{opt}$.
+		\item If $\epsilon_\text{opt}\leq \sqrt{H}/S$ and that 
+		$||\widehat{V}^{\hat{\pi}}_t-\widehat{V}^{\widehat{\pi}^\star}_t ||_\infty\leq\epsilon_\text{opt},\;\forall t=1,...,H$
+		%	$||\widehat{Q}^{\hpi}_1-\widehat{Q}^{\widehat{\pi}^\star}_1 ||_\infty\leq\epsilon_\text{opt} \;\forall t=2,...,H$
+		, then 
+		$
+		v^{\pi^*}  - v^{\hat{\pi}} \leq c\sqrt{\frac{H^3\log(HSA/\delta)}{d_m \cdot n}} + \epsilon_\text{opt}.
+		$
+	\end{enumerate}
+\end{theorem}
+
+\begin{table*}
+	\caption{A comparison of related offline policy learning results. }
+	\label{table}
+	\centering
+	\resizebox{\linewidth}{!}{%
+		\begin{tabular}{llll}
+			\toprule
+			%\multicolumn{2}{c}{Part}                   \\
+			\cmidrule(r){1-3}
+			Method/Analysis     &Setting& Guarantee     & Sample complexity$^b$ \\
+			\midrule
+			\cite{agarwal2020model} &Generative model &$\epsilon+O(\epsilon_{\text{opt}}/(1-\gamma))$-optimal  & {$\widetilde{O}(SA/(1-\gamma)^3 \epsilon^2)$}    \\
+			\cite{le2019batch,chen2019information} &$\infty$-horizon offline & $\epsilon$-optimal policy  & $\widetilde{O}((1-\gamma)^{-6}C_\mu/ \epsilon^2)$   \\
+			\cite{xie2020q} & $\infty$-horizon offline & $\epsilon$-optimal policy  & $\widetilde{O}((1-\gamma)^{-4}C_\mu/ \epsilon^2)$   \\
+			{SIMPLEX} for exact empirical optimal$^a$ & $H$-horizon offline  &$\epsilon$-optimal policy & \mypink{$\widetilde{O}(H^3/d_m \epsilon^2)$}    \\
+			{PI/VI} for $\epsilon_{\text{opt}}$-empirical optimal  &$H$-horizon offline   & $(\epsilon+\epsilon_{\text{opt}})$-optimal policy & \mypink{$\widetilde{O}(H^3/d_m \epsilon^2)$}    \\
+			Minimax lower bound (Theorem~\ref{thm:learn_low_bound})  &$H$-horizon offline    & over class $\mathcal{M}_{d_m}$     & $\Omega(H^3/d_m\epsilon^2)$  \\
+			\bottomrule
+		\end{tabular}
+	}
+	\hspace{-4cm}\footnotesize{ $^a$ PI/VI or SIMPLEX is not essential and can be replaced by any efficient empirical MDP solver.}\\
+	
+	\footnotesize{ $^b$ \emph{Episode} complexity in $H$-horizon setting is comparable to \emph{step} complexity in $\infty$-horizon setting because our finite-horizon MDP is \emph{time-inhomogeneous}.  Informally, we can just take $(1-\gamma)^{-1} \asymp H$ and $C_\mu\asymp 1/d_m$. }
+\end{table*}
+
+The third statement implies that all sufficiently accurate planning algorithms based on the empirically estimated MDP are optimal. For example, we can run value iteration or policy iteration to the point that $\epsilon_{\text{opt}} \leq O(H^3/{n d_m})$.  
+
+\noindent\textbf{Comparing to existing work.} Previously no algorithm is known to achieve the optimal sample complexity in the offline setting. Our result also applies to the related generative model setting by replacing $1/d_m$ with $SA$, which avoids the data-splitting procedure usually encountered by specific algorithm design \citep[e.g.,][]{sidford2018near}. 
+The analogous policy-learning results In the generative model setting \citep[Theorem 1]{agarwal2020model} , 
+ %This analysis has an improvement over \cite{agarwal2020model} as they have a
+ achieves a suboptimality of $\tilde{O}(  (1-\gamma)^{-3}SA/n + (1-\gamma)^{-1} \epsilon_{\text{opt}}  )$ with no additional assumption on $ \epsilon_{\text{opt}}$. Informally, if we replace $(1-\gamma)^{-1}$ with $H$, then our result improves the bound from $H \epsilon_{\text{opt}}$ to just $\epsilon_{\text{opt}}$ for $\epsilon_{\text{opt}}\leq \sqrt{H}/S$. 
+  %$O(\epsilon_{\text{opt}}/(1-\gamma))$ term which should be translated as $O(\epsilon_{\text{opt}}H)$ in the finite horizon setting. 
+  These results are summarized in Table~\ref{table}. 
+  
+  \noindent\textbf{Sparse MDP estimate.}
+  We highlight that the result does not require the estimated MDP to be an accurate approximation in any sense. Recall that the true MDP has $O(S^2)$ parameters (ignoring the dependence on $H,A$ and logarithmic terms), but our result is valid provided that  $n = \tilde{\Omega}(1/d_m)$ which is $\Omega(S)$. This suggests that we may not even exhaustively visit all pairs to state-transitions and that the estimator of $\hat{P}_t$ is allowed to be zero in many coordinates.
+  
+  
+  \noindent\textbf{Optimal computational complexity.}
+  Lastly, from the computational perspective, we can leverage the best existing solutions for solving optimization $\widehat{\pi}^\star:=\text{argmax}_{\pi\in\Pi} \widehat{v}^\pi$. For example, with $\epsilon_{\text{opt}}>0$, as explained by \citet{agarwal2020model}, value iteration ends in $O(H\log \epsilon_{\text{opt}}^{-1})$ iteration 
+  and takes at most $O(HSA)$ time after the model has been estimated with one pass of the data ($O(nH)$ time). We have a total computational complexity of $O(H^4/(d_m \epsilon^2) + H^2SA\log(1/\epsilon))$ time algorithm for obtaining the $\epsilon$-suboptimal policy using $n=O(H^4/(d_m \epsilon^2) $ episodes. This is essentially optimal because the leading term $H^4SA/\epsilon^2$ is required even to just process the data needed for the result to be information-theoretically possible. In comparison, the algorithm that obtains an exact empirical optimal policy $\widehat{\pi}^\star$, the SIMPLEX policy iteration runs in time $O(\text{poly}(H,S,A,n))$ \citep{ye2011simplex}. 
+ 
+
+
+
+
+
+% When uniform convergence in OPE is guaranteed, we can derive offline learning algorithms in a straightforward way by learning the empirical optimal policy $\widehat{\pi}^\star:=\text{argmax}_{\pi\in\Pi} \widehat{v}^\pi$. As a result, model-based Uniform OPE allows the use of \emph{any} efficient planning algorithm in the empirical MDP, which simplifies algorithm design, as the algorithm utilized need not be tied to the sampling procedure/offline data $\mathcal{D}$. Also, it avoids the data-splitting procedure usually encountered by specific algorithm design, \emph{e.g.} \cite{sidford2018near}. Formally, by leveraging the global Uniform OPE result we have the following:
+%
+%\begin{theorem}[Offline learning algorithm]\label{thm:offline_learn}
+%	Suppose a model-based OPE method $\widehat{v}$ achieves $\epsilon_{\text{uni}}$-uniform convergence, \textit{i.e.} with high probability, $\sup_{\pi\in\Pi} \left|\widehat{v}^\pi-v^\pi\right|\leq \epsilon_{\text{uni}}$. Assuming the realizability that $\pi^\star\in\Pi$. Then by selecting $\widehat{\pi}^\star:=\text{argmax}_{\pi\in\Pi} \widehat{v}^\pi$, we obtain with high probability, $
+%	v^{\pi^\star}-v^{\widehat{\pi}^\star}\leq 2\epsilon_{\text{uni}}.
+%	$ In particular, with OPEMA, if apply Thm~\ref{thm:thre}, then $\widehat{\pi}^\star$ is $\widetilde{O}(\sqrt{H^4S/nd_m})$-optimal policy and if apply Thm~\ref{thm:finer_bound} we know $\widehat{\pi}^\star$ is essentially tighter $\widetilde{O}(\sqrt{H^3S/nd_m})$-optimal policy, regardless of the planning algorithm. 
+%\end{theorem}
+%The proof was explained in the motivation section before. If $|\Pi|$ is relatively small, we can find $\widehat{\pi}^\star$ with direct policy search: we traverse all the policies $\pi\in\Pi$ and calculate $\widehat{v}^\pi$, and learn the empirical optimal policy $\widehat{\pi}^\star$. If $|\Pi|$ is large, then $\widehat{\pi}^\star:=\text{argmax}_{\pi\in\Pi} \widehat{v}^\pi$ can be solved efficiently by applying standard Policy Iteration (PI) or Value Iteration (VI) on empirical MDP $\widehat{M}$ \citep{sutton2018reinforcement} since $\widehat{M}$ is known. Theorem~\ref{thm:finer_bound} guarantees offline learning with complexity $\widetilde{O}(H^3S/d_m\epsilon^2)$ is one factor away from optimality in learning context (see Theorem~\ref{thm:learn_low_bound} in appendix). 
+%
+%Theorem~\ref{thm:offline_learn} requires at least one optimal policy to be within the class for the result to work. In contrast, the local uniform convergence result in Theorem~\ref{thm:local_uni_opt} guarantees a $O(\epsilon_{\text{opt}}+\epsilon)$-optimal policy for any policy $\pi$ in the neighborhood of $\widehat{\pi}^\star$ without requirement for optimal policy. Formally, we have the following:
+%
+%\begin{theorem}\label{thm:uni_opt_local}
+%	Suppose $\epsilon_{\text{opt}}\leq \sqrt{H}/S$ and $\widehat{\pi}$ satisfies $||\widehat{Q}^{\hpi}_1-\widehat{Q}^{\widehat{\pi}^\star}_1 ||_\infty\leq\epsilon_\text{opt}$ and $
+%	||\widehat{V}^{\hpi}_t-\widehat{V}^{\widehat{\pi}^\star}_t ||_\infty\leq\epsilon_\text{opt},\;\forall t=2,...,H
+%	$. There exists constant $c_1,c_2$ such that when $n>c_1H^3\log(HSA/\delta)/d_m\epsilon^2$ with probability $1-\delta$,
+%{\small	\[
+%	{Q}^{\pi^\star}_1-{Q}_1^{\widehat{\pi}}\leq c_2\cdot \epsilon\cdot\mathbf{1}+\epsilon_{\text{opt}}\cdot\mathbf{1}.
+%	\]}
+%\end{theorem}
+%In the case where $\epsilon_{\text{opt}}=0$, we have $\widehat{\pi}=\widehat{\pi}^\star$ achieves the optimal sample complexity $O(H^3\log(HSA/\delta)/d_m\epsilon^2)$. 
+
+
+
+
+
+
+
+%\twocolumn[text]
