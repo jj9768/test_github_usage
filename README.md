@@ -1,8 +1,11 @@
 # test_github_usage
-## Create git local
-1. Add the code and files to a local folder.
-2. In newly created folder, type (a) git init; (b) git add . ;(c) git commit -m
 ## connect to git remote
 1. log in github account
 2. create new repository
-3. In command line, git remote add origin
+## make modifications locally
+1. create new folder
+2. cd to the new folder, git clone the repo
+3. (optional) git checkout <branch-name>
+4. cd to the cloned folder, make change
+5. git add . ,git commit
+6. git push origin <branch_name>
